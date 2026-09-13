@@ -6,7 +6,7 @@ class NativeLocalModel(private val modelPath: String) : LocalModelEngine {
         System.loadLibrary("luna_native")
     }
 
-    override fun isReady(): Boolean = nativeAvailable()
+    override fun isReady(): Boolean = modelPath.isNotBlank() && nativeAvailable()
 
     override fun generate(prompt: String, maxTokens: Int): String {
         require(maxTokens in 1..4096) { "maxTokens must be between 1 and 4096" }
