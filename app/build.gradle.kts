@@ -9,7 +9,8 @@ android {
     compileSdk = 35
     defaultConfig {
         applicationId = "com.anya.luna"
-        minSdk = 26
+        // llama.cpp's Android build path is validated against API 28+.
+        minSdk = 28
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
@@ -26,6 +27,13 @@ android {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
             version = "3.22.1"
+            arguments += listOf(
+                "-DANDROID_PLATFORM=android-28",
+                "-DGGML_NATIVE=OFF",
+                "-DGGML_OPENMP=OFF",
+                "-DGGML_LLAMAFILE=OFF",
+                "-DLLAMA_OPENSSL=OFF"
+            )
         }
     }
 }
