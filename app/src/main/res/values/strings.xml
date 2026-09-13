@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Luna Local Agent</string>
-    <string name="accessibility_description">Allows Luna to interact with supported on-screen controls after you explicitly enable Android Accessibility access. It does not bypass secure screens.</string>
+    <string name="accessibility_description">Allows Luna to perform permitted UI navigation locally on this device.</string>
 </resources>
