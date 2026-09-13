@@ -3,7 +3,8 @@ project(luna_native)
 
 # Prefer the repository submodule pinned in .gitmodules. An explicit
 # LLAMA_CPP_DIR override remains available for Android Studio/CI builds.
-set(LLAMA_CPP_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../third_party/llama.cpp" CACHE PATH "Path to the pinned llama.cpp checkout")
+# CMakeLists.txt lives at app/src/main/cpp, so four parents reach the repo root.
+set(LLAMA_CPP_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../third_party/llama.cpp" CACHE PATH "Path to the pinned llama.cpp checkout")
 
 if(NOT EXISTS "${LLAMA_CPP_DIR}/CMakeLists.txt")
     message(FATAL_ERROR "Luna native build requires the pinned third_party/llama.cpp submodule. Clone with --recurse-submodules or set LLAMA_CPP_DIR.")
