@@ -14,14 +14,26 @@ class LocalAgent(context: Context) {
         }
 
         return when (val intent = OfflineIntentParser.parse(command)) {
-            AgentIntent.Home -> "HOME_ACTION_REQUIRED"
-            AgentIntent.Back -> "BACK_ACTION_REQUIRED"
-            AgentIntent.Recents -> "RECENTS_ACTION_REQUIRED"
+            AgentIntent.Home -> global("home")
+            AgentIntent.Back -> global("back")
+            AgentIntent.Recents -> global("recents")
             AgentIntent.WifiSettings -> router.route("wifi")
             AgentIntent.BluetoothSettings -> router.route("bluetooth")
             AgentIntent.AccessibilitySettings -> router.route("accessibility")
             is AgentIntent.OpenApp -> router.route("open ${intent.label}")
             AgentIntent.Unknown -> router.route(command)
         }
+    }
+
+    private fun global(action: String): String {
+        val service = AgentAccessibilityService.instance
+            ?: return "Accessibility is not enabled. Enable it in Luna settings first."
+        val ok = when (action) {
+            "home" -> service.performHome()
+            "back" -> service.performBack()
+            "recents" -> service.performRecents()
+            else -> false
+        }
+        return if (ok) "Done" else "Android rejected that action."
     }
 }
