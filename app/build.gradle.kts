@@ -27,13 +27,6 @@ android {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
             version = "3.22.1"
-            arguments += listOf(
-                "-DANDROID_PLATFORM=android-28",
-                "-DGGML_NATIVE=OFF",
-                "-DGGML_OPENMP=OFF",
-                "-DGGML_LLAMAFILE=OFF",
-                "-DLLAMA_OPENSSL=OFF"
-            )
         }
     }
 }
