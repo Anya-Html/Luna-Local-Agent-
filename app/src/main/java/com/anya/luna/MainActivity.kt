@@ -21,19 +21,44 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             var selectedModel by remember { mutableStateOf<ModelInfo?>(modelStore.listModels().firstOrNull()) }
-            var status by remember { mutableStateOf("Local model backend not linked yet.") }
+            var status by remember { mutableStateOf("Select a GGUF model to begin.") }
+            var output by remember { mutableStateOf("") }
+            var busy by remember { mutableStateOf(false) }
+
             val picker = rememberLauncherForActivityResult(
                 ActivityResultContracts.OpenDocument()
             ) { uri: Uri? ->
                 if (uri == null) return@rememberLauncherForActivityResult
-                runCatching {
-                    modelStore.importGguf(uri)
-                }.onSuccess {
-                    selectedModel = it
-                    status = "Imported locally: ${it.name}"
-                }.onFailure {
-                    status = "Model import failed: ${it.message ?: "unknown error"}"
-                }
+                runCatching { modelStore.importGguf(uri) }
+                    .onSuccess {
+                        selectedModel = it
+                        output = ""
+                        status = "Imported locally: ${it.name}"
+                    }
+                    .onFailure {
+                        status = "Model import failed: ${it.message ?: "unknown error"}"
+                    }
+            }
+
+            fun runLocalInference(model: ModelInfo) {
+                if (busy) return
+                busy = true
+                status = "Running locally…"
+                output = ""
+                Thread {
+                    val result = runCatching {
+                        val engine = NativeLocalModel(model.absolutePath)
+                        engine.generate(
+                            AgentPrompt.build("Say exactly: Luna local model is working."),
+                            maxTokens = 32
+                        )
+                    }.getOrElse { "LOCAL_MODEL_ERROR: ${it.message ?: "unknown error"}" }
+                    runOnUiThread {
+                        output = result
+                        status = if (result.startsWith("LOCAL_MODEL_")) "Local inference failed." else "Local inference completed."
+                        busy = false
+                    }
+                }.start()
             }
 
             MaterialTheme {
@@ -52,6 +77,10 @@ class MainActivity : ComponentActivity() {
                         Text("Model: ${model.name}")
                         Text("Size: ${model.sizeBytes / (1024 * 1024)} MB")
                         Text("SHA-256: ${model.sha256.take(16)}…")
+
+                        Button(onClick = { runLocalInference(model) }, enabled = !busy) {
+                            Text(if (busy) "Running…" else "Test Local Inference")
+                        }
                     } ?: Text("No GGUF model imported.")
 
                     Button(onClick = { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }) {
@@ -59,7 +88,10 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Text(status)
-                    Text("Next: bind the imported GGUF to llama.cpp for real on-device inference.")
+                    if (output.isNotBlank()) {
+                        Text("Model output:")
+                        Text(output)
+                    }
                 }
             }
         }
