@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(luna_native)
 
-# Luna's native backend is intentionally fail-closed: the app only claims
-# llama.cpp support when an exact, reviewed llama.cpp checkout is supplied.
-set(LLAMA_CPP_DIR "" CACHE PATH "Path to the pinned llama.cpp checkout")
+# Prefer the repository submodule pinned in .gitmodules. An explicit
+# LLAMA_CPP_DIR override remains available for Android Studio/CI builds.
+set(LLAMA_CPP_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../third_party/llama.cpp" CACHE PATH "Path to the pinned llama.cpp checkout")
 
-if(NOT LLAMA_CPP_DIR OR NOT EXISTS "${LLAMA_CPP_DIR}/CMakeLists.txt")
-    message(FATAL_ERROR "Luna native build requires LLAMA_CPP_DIR pointing to the pinned llama.cpp checkout (see llama.cpp.PIN)")
+if(NOT EXISTS "${LLAMA_CPP_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR "Luna native build requires the pinned third_party/llama.cpp submodule. Clone with --recurse-submodules or set LLAMA_CPP_DIR.")
 endif()
 
 set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
@@ -19,7 +19,6 @@ add_subdirectory("${LLAMA_CPP_DIR}" llama_cpp EXCLUDE_FROM_ALL)
 
 add_library(luna_native SHARED native_luna.cpp)
 target_compile_features(luna_native PRIVATE cxx_std_17)
-
 target_link_libraries(luna_native PRIVATE llama)
 
 find_library(log-lib log)
