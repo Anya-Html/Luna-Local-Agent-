@@ -1,28 +1,26 @@
 # Luna Local Agent
 
-A privacy-first Android AI agent designed for local execution.
+Privacy-first Android AI agent designed for on-device execution.
 
-## Hard privacy rule
+## Privacy contract
+- No cloud AI API.
 - No `android.permission.INTERNET` in the app manifest.
-- No cloud AI API, telemetry, analytics, or remote command service.
-- User data and agent state are intended to stay on-device.
-- Sensitive/destructive actions should require explicit confirmation.
+- No analytics or telemetry dependency.
+- Commands are intended to be processed locally.
+- Accessibility is opt-in and controlled by Android system settings.
 
-## Device target
-Designed initially for a 6 GB RAM Android phone with a Snapdragon 6-class CPU. The local model should be a small quantized GGUF model; do not commit model binaries to this repository.
+## Current prototype
+- Compose launcher/status UI
+- Local command router
+- Wi-Fi, Bluetooth and Accessibility settings intents
+- Accessibility global Back/Home/Recents bridge
 
-## Architecture
-- Kotlin + Jetpack Compose UI
-- Local command router with an allow-list
-- Android Accessibility Service for permitted UI interaction
-- Future local LLM runtime: llama.cpp/GGUF
-- Future offline STT/TTS
-- Future encrypted local memory
+## Roadmap
+1. Offline speech recognition
+2. Small quantized GGUF model via llama.cpp
+3. Offline TTS
+4. More Android public APIs and permitted accessibility actions
+5. Local encrypted memory
+6. Confirmation layer for destructive/privacy-sensitive actions
 
-## Android limits
-Luna cannot bypass Android security boundaries, passwords, secure screens, banking protections, permission prompts, or privileged system controls. Accessibility access must be explicitly enabled by the user.
-
-## Current status
-Phase 1 scaffold: Android project, privacy-first manifest, Accessibility bridge, and a small allow-listed settings command router.
-
-Next: wire in a CPU-friendly local GGUF model, offline voice input/output, encrypted local memory, and a confirmation layer for risky actions.
+Luna must never bypass Android security boundaries, secure screens, passwords, banking protections, or permission prompts.

@@ -1,23 +1,20 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
-    namespace = "com.anya.lunaagent"
+    namespace = "com.anya.luna"
     compileSdk = 35
-
     defaultConfig {
-        applicationId = "com.anya.lunaagent"
+        applicationId = "com.anya.luna"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
     }
-}
-
-kotlin {
-    jvmToolchain(17)
+    buildFeatures { compose = true }
 }
 
 dependencies {
