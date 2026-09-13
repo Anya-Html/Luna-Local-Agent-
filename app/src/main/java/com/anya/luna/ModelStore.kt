@@ -6,7 +6,7 @@ import java.io.File
 import java.security.MessageDigest
 
 /** Keeps imported GGUF models inside app-private storage. No network access is used. */
-class ModelStore(context: Context) {
+class ModelStore(private val context: Context) {
     private val modelDir = File(context.filesDir, "models").apply { mkdirs() }
 
     fun importGguf(uri: Uri, displayName: String? = null): ModelInfo {
@@ -14,7 +14,7 @@ class ModelStore(context: Context) {
         require(name.endsWith(".gguf", ignoreCase = true)) { "Only .gguf models are supported." }
 
         val destination = File(modelDir, name)
-        contextResolver(context).contentResolver.openInputStream(uri).use { input ->
+        context.contentResolver.openInputStream(uri).use { input ->
             requireNotNull(input) { "Could not open the selected model." }
             destination.outputStream().use { output -> input.copyTo(output) }
         }
@@ -44,8 +44,6 @@ class ModelStore(context: Context) {
         val base = raw.substringAfterLast('/').substringAfterLast('\\').trim()
         return base.replace(Regex("[^A-Za-z0-9._-]"), "_").ifBlank { "model.gguf" }
     }
-
-    private fun contextResolver(context: Context): Context = context
 }
 
 data class ModelInfo(
